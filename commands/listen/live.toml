@@ -2,11 +2,11 @@ description = "Run the webhook listener in the foreground and stream output live
 
 prompt = """
 !{
-  PORT="{{args}}"
-  if [ -z "$PORT" ]; then PORT=8765; fi
+  ARG_PORT={{args}}
+  PORT=${ARG_PORT:-8765}
   echo "Starting live listener on http://127.0.0.1:${PORT}/event"
   echo "Press Esc to stop (sends SIGINT)."
-  exec node "$HOME/.gemini/scripts/listen.js" "$PORT"
+  exec env PORT=$PORT node "$HOME/.gemini/scripts/listen.js"
 }
 Return nothing; just stream the live process output.
 """

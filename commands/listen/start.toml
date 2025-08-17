@@ -3,7 +3,7 @@ description = "Start a local webhook listener on port 8765 (detached)."
 prompt = """
 !{
   mkdir -p .tmp
-  nohup /usr/bin/env node "./scripts/listen.js" 8765 >> .tmp/gemini-listen.log 2>&1 &
+  nohup node "./scripts/listen.js" 8765 >> .tmp/gemini-listen.log 2>&1 &
   echo $! > .tmp/gemini-listen.pid
   echo "Listener: http://localhost:8765/event"
   printf "PID: "

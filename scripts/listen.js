@@ -250,13 +250,16 @@ server.listen(port, () => {
   console.log(`Webhook listener on http://127.0.0.1:${port}/event`);
 });
 
-// Graceful shutdown (Esc in Gemini CLI will send SIGINT)
-process.on("SIGINT", () => {
-  console.log("Received SIGINT, shutting down…");
+// Graceful shutdown 
+const gracefulShutdown = (signal) => {
+  console.log("Received ${signal}, shutting down…");
   server.close(() => {
     console.log("Server closed.");
     process.exit(0);
   });
   // Safety: force-exit if close hangs
   setTimeout(() => process.exit(0), 1500).unref();
-});
+}
+
+process.on("SIGINT", gracefulShutdown); //Esc in Gemini CLI will send SIGINT
+process.on("SIGHUP", gracefulShutdown);

@@ -1,19 +1,33 @@
-description = "Stop the background webhook listener."
+description = "Stop webhook listener (in sandbox)"
 
 prompt = """
 !{
-  if [ -f .tmp/gemini-listen.pid ]; then
-    read PID < .tmp/gemini-listen.pid
-    if [ -n "$PID" ] && ps -p "$PID" >/dev/null 2>&1; then
-      kill "$PID" >/dev/null 2>&1 || true
-      echo "Stopped listener"
-    else
-      echo "No listener running (stale PID file)"
-    fi
-    rm -f .tmp/gemini-listen.pid
+  echo "Attempting to shut down webhook listener..."
+  curl -s -X POST http://localhost:8765/shutdown
+  if [ $? -eq 0 ]; then
+    echo "Webhook listener shutdown request sent successfully."
   else
-    echo "No listener running"
+    echo "Webhook listener not running or failed to send shutdown request."
+  fi
+
+  if [ -f .tmp/gemini-listen.pid ]; then
+    read -r PID < .tmp/gemini-listen.pid
+    if [ -n "$PID" ]; then # Check if PID is not empty
+      echo "Found PID $PID in .tmp/gemini-listen.pid. Attempting to kill process..."
+      kill "$PID"
+      if [ $? -eq 0 ]; then
+        echo "Process $PID killed successfully."
+      else
+        echo "Failed to kill process $PID. It might not be running."
+      fi
+    else
+      echo "PID file .tmp/gemini-listen.pid is empty."
+    fi
+    rm .tmp/gemini-listen.pid
+    echo "Removed PID file .tmp/gemini-listen.pid"
+  else
+    echo "PID file .tmp/gemini-listen.pid not found."
   fi
 }
-Reply with the one-line status only.
+Return the line above exactly.
 """
